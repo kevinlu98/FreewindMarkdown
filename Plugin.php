@@ -5,7 +5,6 @@ namespace TypechoPlugin\FreewindMarkdown;
 use Typecho\Plugin\PluginInterface;
 use Typecho\Widget\Helper\Form;
 use Typecho\Widget\Helper\Form\Element\Radio;
-use Typecho\Widget\Helper\Form\Element\Text;
 use Utils\Helper;
 
 if (!defined('__TYPECHO_ROOT_DIR__')) {
@@ -118,15 +117,15 @@ class Plugin implements PluginInterface
     public static function indexHeader($header)
     {
         ?>
-        <link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/css/markdown.extend.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/css/markdown.extend.min.css">
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_aplyer): ?>
-        <link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/lib/APlayer/APlayer.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.css">
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_font): ?>
-        <link href="/usr/plugins/FreewindMarkdown/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax): ?>
-        <link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/lib/katex/katex.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.css">
     <?php endif; ?>
         <?php
     }
@@ -135,25 +134,25 @@ class Plugin implements PluginInterface
     {
         ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_jquery): ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/jquery/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/jquery/jquery-3.5.1.min.js"></script>
     <?php endif ?>
 
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax): ?>
-        <script defer src="/usr/plugins/FreewindMarkdown/lib/katex/katex.min.css"></script>
-        <script defer src="/usr/plugins/FreewindMarkdown/lib/katex/contrib/auto-render.min.js"
+        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.css"></script>
+        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/contrib/auto-render.min.js"
                 onload="renderMathInElement(document.body);"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_flowchart): ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/editormd/lib/raphael.min.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/editormd/lib/flowchart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/raphael.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/flowchart.min.js"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_sequencediagram): ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/editormd/lib/underscore.min.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/editormd/lib/sequence-diagram.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/underscore.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/sequence-diagram.min.js"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_aplyer): ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/APlayer/APlayer.min.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/MetingJS/Meting.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/MetingJS/Meting.js"></script>
     <?php endif; ?>
         <script>
             $(function () {
@@ -236,12 +235,12 @@ class Plugin implements PluginInterface
     {
 
         ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/editormd/editormd.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/editormd.js"></script>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
-        <script src="/usr/plugins/FreewindMarkdown/lib/APlayer/APlayer.min.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/MetingJS/Meting.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/layer/layer.js"></script>
-        <script src="/usr/plugins/FreewindMarkdown/lib/color/xncolorpicker.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/MetingJS/Meting.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/layer/layer.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/color/xncolorpicker.min.js"></script>
     <?php endif; ?>
         <script>
             $(function () {
@@ -266,7 +265,7 @@ class Plugin implements PluginInterface
                     imageUpload: true,
                     imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                     imageUploadURL: "<?php echo __TYPECHO_PLUGIN_DIR__?>/FreewindMarkdown/upload.php",
-                    path: '/usr/plugins/FreewindMarkdown/lib/editormd/lib/',
+                    path: 'https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/',
                     toolbarIcons: [
                         "undo", "redo", "|",
                         "bold", "del", "italic", "quote", "|",
@@ -603,11 +602,11 @@ class Plugin implements PluginInterface
     public static function header($header): string
     {
         if (strpos($_SERVER['SCRIPT_NAME'], "write-post.php")) {
-            $header = $header . '<link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/lib/editormd/css/editormd.min.css">';
+            $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/css/editormd.min.css">';
             if (Helper::options()->plugin('FreewindMarkdown')->is_available_code) {
-                $header = $header . '<link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/css/markdown.extend.css">';
-                $header = $header . '<link href="/usr/plugins/FreewindMarkdown/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">';
-                $header = $header . '<link rel="stylesheet" href="/usr/plugins/FreewindMarkdown/lib/APlayer/APlayer.min.css">';
+                $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/css/markdown.extend.css">';
+                $header = $header . '<link href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">';
+                $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.css">';
             }
             $header = $header . '
             <style>
