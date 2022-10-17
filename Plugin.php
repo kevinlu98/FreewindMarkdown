@@ -138,7 +138,7 @@ class Plugin implements PluginInterface
     <?php endif ?>
 
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax): ?>
-        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.css"></script>
+        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/contrib/auto-render.min.js"
                 onload="renderMathInElement(document.body);"></script>
     <?php endif; ?>
@@ -233,7 +233,6 @@ class Plugin implements PluginInterface
      */
     public static function render(): void
     {
-
         ?>
         <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/editormd.js"></script>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
