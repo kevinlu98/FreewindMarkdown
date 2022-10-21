@@ -1,0 +1,36 @@
+if ($('#fw-is-available-mathjax').data('value') === 1) {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+        ],
+        throwOnError: false
+    });
+}
+if ($('#fw-is-available-code').data('value') === 1) {
+    $("#fw-article-content").on('click', '.fwh .fwthead', function () {
+        $(this).parent().children('.fwthead').removeClass('fwcurrent')
+        $(this).addClass('fwcurrent')
+        $(this).parent().parent().find('.fwtbody').hide()
+        $(this).parent().parent().find(`.fwtbody-${$(this) . data('target')}`).stop().fadeIn()
+    })
+    $("#fw-article-content .fwtab .fwh .fwthead:first-child").click()
+}
+if ($('#fw-is-available-flowchart').data('value') === 1) {
+    $('#fw-article-content code.lang-flow').each((index, element) => {
+        chart = flowchart.parse($(element).text());
+        $(element).parent().after(`<div id="canvas-${index}"></div>`).remove()
+        chart.drawSVG(`canvas-${index}`);
+        $(`#canvas-${index}`).prev('.mac-bar').remove()
+    })
+}
+if ($('#fw-is-available-sequencediagram').data('value') === 1) {
+    $('#fw-article-content code.lang-seq').each((index, element) => {
+        let code = $(element).text()
+        $(element).parent().after(`<div id="seq-${index}">${code}</div>`).remove()
+        $(`#seq-${index}`).sequenceDiagram({theme: 'simple'});
+        $(`div#seq-${index}`).prev('.mac-bar').remove()
+    })
+}
