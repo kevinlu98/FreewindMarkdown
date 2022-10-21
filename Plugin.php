@@ -158,6 +158,7 @@ class Plugin implements PluginInterface
                         var successful = document.execCommand('copy');
                         var msg = successful ? 'successful' : 'unsuccessful';
                         alert('复制成功')
+
                     } catch (err) {
                         console.error('Fallback: Oops, unable to copy', err);
                     }
