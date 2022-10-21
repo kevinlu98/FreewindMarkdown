@@ -126,7 +126,7 @@ class Plugin implements PluginInterface
         if (Helper::options()->plugin('FreewindMarkdown')->static_cdn) {
             return Helper::options()->plugin('FreewindMarkdown')->static_cdn . $path;
         }
-        return 'https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/' . $path;
+        return 'https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.1/' . $path;
     }
 
     /**
