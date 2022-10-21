@@ -157,7 +157,7 @@ class Plugin implements PluginInterface
                     try {
                         var successful = document.execCommand('copy');
                         var msg = successful ? 'successful' : 'unsuccessful';
-                       alert('复制成功')
+                        alert('复制成功')
                     } catch (err) {
                         console.error('Fallback: Oops, unable to copy', err);
                     }
@@ -170,14 +170,15 @@ class Plugin implements PluginInterface
                         fallbackCopyTextToClipboard(text);
                         return;
                     }
-                    navigator.clipboard.writeText(text).then(function() {
+                    navigator.clipboard.writeText(text).then(function () {
                         console.log('Async: Copying to clipboard was successful!');
-                    }, function(err) {
+                    }, function (err) {
                         console.error('Async: Could not copy text: ', err);
                     });
                 }
+
                 $('textarea[name=pjax_support]').attr('readonly', 'true')
-                $('#copy-pjax').on('click',function () {
+                $('#copy-pjax').on('click', function () {
                     copyTextToClipboard($('textarea[name=pjax_support]').val())
                 })
             })
@@ -329,16 +330,15 @@ class Plugin implements PluginInterface
     {
 
         ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/editormd.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/editormd/editormd.js') ?>"></script>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/MetingJS/Meting.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/layer/layer.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/color/xncolorpicker.min.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/APlayer/APlayer.min.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/MetingJS/Meting.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/layer/layer.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/color/xncolorpicker.min.js') ?>"></script>
     <?php endif; ?>
         <script>
             $(function () {
-                // console.log($('textarea[name=pjax_support]').attr('readonly'));
 
                 $('#wmd-button-bar').remove()
                 let text = $('#text').clone()
@@ -361,7 +361,7 @@ class Plugin implements PluginInterface
                     imageUpload: true,
                     imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                     imageUploadURL: "<?php echo __TYPECHO_PLUGIN_DIR__?>/FreewindMarkdown/upload.php",
-                    path: 'https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/',
+                    path: '<?php echo self::markdownCdn("lib/editormd/lib/")?>',
                     toolbarIcons: [
                         "undo", "redo", "|",
                         "bold", "del", "italic", "quote", "|",
@@ -698,11 +698,11 @@ class Plugin implements PluginInterface
     public static function header($header): string
     {
         if (strpos($_SERVER['SCRIPT_NAME'], "write-post.php") || strpos($_SERVER['SCRIPT_NAME'], "write-page.php")) {
-            $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/css/editormd.min.css">';
+            $header = $header . '<link rel="stylesheet" href="' . self::markdownCdn('lib/editormd/css/editormd.min.css') . '">';
             if (Helper::options()->plugin('FreewindMarkdown')->is_available_code) {
-                $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/css/markdown.extend.css">';
-                $header = $header . '<link href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">';
-                $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.css">';
+                $header = $header . '<link rel="stylesheet" href="' . self::markdownCdn('css/markdown.extend.css') . '">';
+                $header = $header . '<link href="' . self::markdownCdn('lib/font-awesome/css/font-awesome.min.css') . '" rel="stylesheet">';
+                $header = $header . '<link rel="stylesheet" href="' . self::markdownCdn('lib/APlayer/APlayer.min.css') . '">';
             }
             $header = $header . '
             <style>
