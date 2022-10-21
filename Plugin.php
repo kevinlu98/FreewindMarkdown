@@ -4,7 +4,10 @@ namespace TypechoPlugin\FreewindMarkdown;
 
 use Typecho\Plugin\PluginInterface;
 use Typecho\Widget\Helper\Form;
+use Typecho\Widget\Helper\Form\Element\Hidden;
 use Typecho\Widget\Helper\Form\Element\Radio;
+use Typecho\Widget\Helper\Form\Element\Text;
+use Typecho\Widget\Helper\Form\Element\Textarea;
 use Utils\Helper;
 
 if (!defined('__TYPECHO_ROOT_DIR__')) {
@@ -30,6 +33,8 @@ class Plugin implements PluginInterface
     public static function activate()
     {
         \Typecho\Plugin::factory('admin/write-post.php')->bottom = __CLASS__ . '::render';
+        \Typecho\Plugin::factory('admin/footer.php')->end = __CLASS__ . '::optionFooter';
+        \Typecho\Plugin::factory('admin/write-page.php')->bottom = __CLASS__ . '::render';
         \Typecho\Plugin::factory('admin/header.php')->header = __CLASS__ . '::header';
         \Typecho\Plugin::factory('Widget\Base\Contents')->contentEx = __CLASS__ . '::parse';
         \Typecho\Plugin::factory('Widget\Archive')->header = __CLASS__ . '::indexHeader';
@@ -50,59 +55,78 @@ class Plugin implements PluginInterface
      */
     public static function config(Form $form)
     {
-        $elementMathJax = new Radio(
+        $form->addInput(new Radio(
             'is_available_mathjax',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE, _t('是否开启 TeX(KaTeX) 数学公式支持'),
             ''
-        );
-        $form->addInput($elementMathJax);
-        $elementFlowChart = new Radio(
+        ));
+        $form->addInput(new Radio(
             'is_available_flowchart',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE, _t('是否开启 流程图 支持'),
             ''
-        );
-        $form->addInput($elementFlowChart);
-        $elementSequenceDiagram = new Radio(
+        ));
+        $form->addInput(new Radio(
             'is_available_sequencediagram',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE, _t('是否开启 时序图 支持'),
             ''
-        );
-        $form->addInput($elementSequenceDiagram);
-        $elementCode = new Radio(
+        ));
+        $form->addInput(new Radio(
             'is_available_code',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE,
             _t('是否开启 Freewind短代码 支持'),
             _t('编辑器内置一些短代码支持，开启后可直接使用')
-        );
-        $form->addInput($elementCode);
-        $importJq = new Radio(
+        ));
+
+        $form->addInput(new Radio(
             'auto_import_jquery',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE,
             _t('是否自动导入jquery'),
             _t('如果你所用的主题没有使用到jquery,请开启此选项')
-        );
-        $form->addInput($importJq);
-        $importFont = new Radio(
+        ));
+        $form->addInput(new Radio(
             'auto_import_font',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE,
             _t('是否自动导入FontAwesome'),
             _t('如果你所用的主题没有使用到FontAwesome,请开启此选项')
-        );
-        $form->addInput($importFont);
-        $importAplayer = new Radio(
+        ));
+        $form->addInput(new Radio(
             'auto_import_aplyer',
             [self::RADIO_DISABLE => _t('不开启'), self::RADIO_ENABLE => _t('开启')],
             self::RADIO_DISABLE,
             _t('是否自动导入Aplayer及MetingJS'),
             _t('如果你所用的主题没有使用到Aplayer及MetingJS,请开启此选项')
-        );
-        $form->addInput($importAplayer);
+        ));
+        $form->addInput(new Text(
+            'static_cdn',
+            null,
+            '',
+            _t('自定义静态资源CDN'),
+            _t('请以"\"结尾，允许自定义静态资源的路径，可以插件采用你自定义的路径来加载静态资源，可前往 <a target="_blank" href="https://github.com/kevinlu98/FreewindMarkdown/">传送门</a>  下载<b>release</b>中的 <b>source code</b>并将其中的<b>css</b>及<b>lib</b>文件夹上传至你自己的服务器来避免默认cdn挂了出现一些功能不可用')
+        ));
+        $pjaxJs = file_get_contents(Helper::options()->siteUrl . '/usr/plugins/FreewindMarkdown/pjax.txt');
+        $form->addInput(new Textarea(
+            "pjax_support",
+            null,
+            $pjaxJs,
+            "Pjax代码(请勿修改)",
+            '对于一些支持Pjax的主题可以点<button type="button" id="copy-pjax" class="btn btn-warn">复制</button>将pjax代码复制到主题的pjax设置中'
+        ));
+        ?>
+        <?php
+    }
+
+    public static function markdownCdn($path): string
+    {
+        if (Helper::options()->plugin('FreewindMarkdown')->static_cdn) {
+            return Helper::options()->plugin('FreewindMarkdown')->static_cdn . $path;
+        }
+        return 'https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/' . $path;
     }
 
     /**
@@ -114,18 +138,70 @@ class Plugin implements PluginInterface
     {
     }
 
-    public static function indexHeader($header)
+    public static function optionFooter()
     {
         ?>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/css/markdown.extend.min.css">
+        <script>
+            $(function () {
+                function fallbackCopyTextToClipboard(text) {
+                    // 1.创建一个可选中元素
+                    let textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    // 2.使用定位，阻止页面滚动
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        var successful = document.execCommand('copy');
+                        var msg = successful ? 'successful' : 'unsuccessful';
+                       alert('复制成功')
+                    } catch (err) {
+                        console.error('Fallback: Oops, unable to copy', err);
+                    }
+                    // 3.移除元素
+                    document.body.removeChild(textArea);
+                }
+
+                function copyTextToClipboard(text) {
+                    if (!navigator.clipboard) {
+                        fallbackCopyTextToClipboard(text);
+                        return;
+                    }
+                    navigator.clipboard.writeText(text).then(function() {
+                        console.log('Async: Copying to clipboard was successful!');
+                    }, function(err) {
+                        console.error('Async: Could not copy text: ', err);
+                    });
+                }
+                $('textarea[name=pjax_support]').attr('readonly', 'true')
+                $('#copy-pjax').on('click',function () {
+                    copyTextToClipboard($('textarea[name=pjax_support]').val())
+                })
+            })
+        </script>
+        <?php
+    }
+
+    public static function indexHeader($header)
+    {
+        if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
+            <link rel="stylesheet"
+                  href="<?php echo self::markdownCdn('css/markdown.extend.css') ?>">
+        <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_aplyer): ?>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.css">
+        <link rel="stylesheet"
+              href="<?php echo self::markdownCdn('lib/APlayer/APlayer.min.css') ?>">
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_font): ?>
-        <link href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="<?php echo self::markdownCdn('lib/font-awesome/css/font-awesome.min.css') ?>"
+              rel="stylesheet">
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax): ?>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.css">
+        <link rel="stylesheet"
+              href="<?php echo self::markdownCdn('lib/katex/katex.min.css') ?>">
     <?php endif; ?>
         <?php
     }
@@ -133,54 +209,72 @@ class Plugin implements PluginInterface
     public static function indexFooter()
     {
         ?>
+        <div style="display: none" id="fw-is-available-mathjax"
+             data-value="<?php echo Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax ?>"></div>
+        <div style="display: none" id="fw-is-available-flowchart"
+             data-value="<?php echo Helper::options()->plugin('FreewindMarkdown')->is_available_flowchart ?>"></div>
+        <div style="display: none" id="fw-is-available-sequencediagram"
+             data-value="<?php echo Helper::options()->plugin('FreewindMarkdown')->is_available_sequencediagram ?>"></div>
+        <div style="display: none" id="fw-is-available-code"
+             data-value="<?php echo Helper::options()->plugin('FreewindMarkdown')->is_available_code ?>"></div>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_jquery): ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/jquery/jquery-3.5.1.min.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/jquery/jquery-3.5.1.min.js') ?>"></script>
     <?php endif ?>
 
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_mathjax): ?>
-        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/katex.min.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/katex/contrib/auto-render.min.js"
-                onload="renderMathInElement(document.body);"></script>
+        <script src="<?php echo self::markdownCdn('lib/katex/katex.min.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/katex/contrib/auto-render.min.js') ?>"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_flowchart): ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/raphael.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/flowchart.min.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/editormd/lib/raphael.min.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/editormd/lib/flowchart.min.js') ?>"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_sequencediagram): ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/underscore.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/lib/sequence-diagram.min.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/editormd/lib/underscore.min.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/editormd/lib/sequence-diagram.min.js') ?>"></script>
     <?php endif; ?>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->auto_import_aplyer): ?>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/APlayer/APlayer.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/MetingJS/Meting.js"></script>
+        <script src="<?php echo self::markdownCdn('lib/APlayer/APlayer.min.js') ?>"></script>
+        <script src="<?php echo self::markdownCdn('lib/MetingJS/Meting.js') ?>"></script>
     <?php endif; ?>
         <script>
             $(function () {
-                <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
-                $("#fw-article-content").on('click', '.fwh .fwthead', function () {
-                    $(this).parent().children('.fwthead').removeClass('fwcurrent')
-                    $(this).addClass('fwcurrent')
-                    $(this).parent().parent().find('.fwtbody').hide()
-                    $(this).parent().parent().find(`.fwtbody-${$(this).data('target')}`).stop().fadeIn()
-                })
-                $("#fw-article-content .fwtab .fwh .fwthead:first-child").click()
-                <?php endif; ?>
-                <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_flowchart): ?>
-                $('#fw-article-content code.lang-flow').each((index, element) => {
-
-                    chart = flowchart.parse($(element).text());
-                    $(element).parent().after(`<div id="canvas-${index}"></div>`).remove()
-                    chart.drawSVG(`canvas-${index}`);
-                })
-                <?php endif; ?>
-                <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_sequencediagram): ?>
-                $('#fw-article-content code.lang-seq').each((index, element) => {
-                    let code = $(element).text()
-                    $(element).parent().after(`<div id="seq-${index}">${code}</div>`).remove()
-                    $(`#seq-${index}`).sequenceDiagram({theme: 'simple'});
-                })
-                <?php endif; ?>
-
+                if ($('#fw-is-available-mathjax').data('value') === 1) {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                }
+                if ($('#fw-is-available-code').data('value') === 1) {
+                    $("#fw-article-content").on('click', '.fwh .fwthead', function () {
+                        $(this).parent().children('.fwthead').removeClass('fwcurrent')
+                        $(this).addClass('fwcurrent')
+                        $(this).parent().parent().find('.fwtbody').hide()
+                        $(this).parent().parent().find(`.fwtbody-${$(this).data('target')}`).stop().fadeIn()
+                    })
+                    $("#fw-article-content .fwtab .fwh .fwthead:first-child").click()
+                }
+                if ($('#fw-is-available-flowchart').data('value') === 1) {
+                    $('#fw-article-content code.lang-flow').each((index, element) => {
+                        chart = flowchart.parse($(element).text());
+                        $(element).parent().after(`<div id="canvas-${index}"></div>`).remove()
+                        chart.drawSVG(`canvas-${index}`);
+                        $(`#canvas-${index}`).prev('.mac-bar').remove()
+                    })
+                }
+                if ($('#fw-is-available-sequencediagram').data('value') === 1) {
+                    $('#fw-article-content code.lang-seq').each((index, element) => {
+                        let code = $(element).text()
+                        $(element).parent().after(`<div id="seq-${index}">${code}</div>`).remove()
+                        $(`#seq-${index}`).sequenceDiagram({theme: 'simple'});
+                        $(`div#seq-${index}`).prev('.mac-bar').remove()
+                    })
+                }
             })
         </script>
         <?php
@@ -233,6 +327,7 @@ class Plugin implements PluginInterface
      */
     public static function render(): void
     {
+
         ?>
         <script src="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/editormd.js"></script>
         <?php if (Helper::options()->plugin('FreewindMarkdown')->is_available_code): ?>
@@ -243,6 +338,8 @@ class Plugin implements PluginInterface
     <?php endif; ?>
         <script>
             $(function () {
+                // console.log($('textarea[name=pjax_support]').attr('readonly'));
+
                 $('#wmd-button-bar').remove()
                 let text = $('#text').clone()
                 $('#wmd-editarea').remove()
@@ -600,7 +697,7 @@ class Plugin implements PluginInterface
 
     public static function header($header): string
     {
-        if (strpos($_SERVER['SCRIPT_NAME'], "write-post.php")) {
+        if (strpos($_SERVER['SCRIPT_NAME'], "write-post.php") || strpos($_SERVER['SCRIPT_NAME'], "write-page.php")) {
             $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/lib/editormd/css/editormd.min.css">';
             if (Helper::options()->plugin('FreewindMarkdown')->is_available_code) {
                 $header = $header . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kevinlu98/FreewindMarkdown@1.0/css/markdown.extend.css">';
